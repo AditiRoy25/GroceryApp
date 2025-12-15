@@ -281,6 +281,175 @@
 
 
 
+// "use client";
+
+// import { useSelector, useDispatch } from "react-redux";
+// import { RootState } from "@/redux/store";
+// import {
+//   Box,
+//   Typography,
+//   Card,
+//   CardContent,
+//   CardMedia,
+//   IconButton,
+//   Button,
+//   Divider,
+// } from "@mui/material";
+// import AddIcon from "@mui/icons-material/Add";
+// import RemoveIcon from "@mui/icons-material/Remove";
+// import {
+//   addToCart,
+//   decrementQuantity,
+//   removeFromCart,
+//   undo,
+// } from "@/redux/slices/cartSlice";
+// import { motion, AnimatePresence } from "framer-motion";
+// import CouponInput from "@/components/cart/CouponInput";
+
+// export default function CartSummary() {
+//   const dispatch = useDispatch();
+
+//   const items = useSelector((state: RootState) => state.cart.items);
+
+//   // ✅ COUPON DISCOUNT FROM REDUX
+//   const discount = useSelector(
+//     (state: RootState) => state.coupon.discount
+//   );
+
+//   // ✅ PRICE CALCULATIONS
+//   const subtotal = items.reduce(
+//     (sum, item) => sum + item.price * item.quantity,
+//     0
+//   );
+
+//   const couponDiscount = (subtotal * discount) / 100;
+//   const finalTotal = subtotal - couponDiscount;
+
+//   return (
+//     <Box>
+//       <Typography variant="h5" mb={2}>
+//         Cart
+//       </Typography>
+
+//       {/* CART ITEMS */}
+//       <AnimatePresence>
+//         {items.map((item) => (
+//           <motion.div
+//             key={item.id}
+//             layout
+//             initial={{ opacity: 0, y: 20 }}
+//             animate={{ opacity: 1, y: 0 }}
+//             exit={{ opacity: 0, x: -40 }}
+//             transition={{ duration: 0.25 }}
+//           >
+//             <Card
+//               sx={{
+//                 display: "flex",
+//                 alignItems: "center",
+//                 mb: 2,
+//                 height: 120,
+//               }}
+//             >
+//               {/* IMAGE */}
+//               <CardMedia
+//                 component="img"
+//                 image={item.image}
+//                 alt={item.name}
+//                 sx={{
+//                   width: 120,
+//                   height: "100%",
+//                   objectFit: "cover",
+//                 }}
+//               />
+
+//               {/* CONTENT */}
+//               <CardContent sx={{ flexGrow: 1 }}>
+//                 <Typography fontWeight={600}>
+//                   {item.name}
+//                 </Typography>
+
+//                 <Typography variant="body2" color="text.secondary">
+//                   ₹{item.price} × {item.quantity}
+//                 </Typography>
+
+//                 <Typography fontWeight={600}>
+//                   Total: ₹{item.price * item.quantity}
+//                 </Typography>
+//               </CardContent>
+
+//               {/* QUANTITY CONTROLS */}
+//               <Box display="flex" alignItems="center" gap={1}>
+//                 <IconButton
+//                   onClick={() =>
+//                     dispatch(decrementQuantity(item.id))
+//                   }
+//                 >
+//                   <RemoveIcon />
+//                 </IconButton>
+
+//                 <Typography>{item.quantity}</Typography>
+
+//                 <IconButton
+//                   onClick={() => dispatch(addToCart(item))}
+//                 >
+//                   <AddIcon />
+//                 </IconButton>
+//               </Box>
+
+//               {/* REMOVE */}
+//               <Box pr={2}>
+//                 <Button
+//                   color="error"
+//                   variant="outlined"
+//                   onClick={() =>
+//                     dispatch(removeFromCart(item.id))
+//                   }
+//                 >
+//                   Remove
+//                 </Button>
+//               </Box>
+//             </Card>
+//           </motion.div>
+//         ))}
+//       </AnimatePresence>
+
+//       <Divider sx={{ my: 2 }} />
+
+//       {/* COUPON INPUT */}
+//       <CouponInput />
+
+//       {/* PRICE SUMMARY */}
+//       <Box mt={2}>
+//         <Typography>
+//           Subtotal: ₹{subtotal}
+//         </Typography>
+
+//         {discount > 0 && (
+//           <Typography color="success.main">
+//             Coupon Discount ({discount}%): -₹{couponDiscount}
+//           </Typography>
+//         )}
+
+//         <Typography variant="h6" mt={1}>
+//           Grand Total: ₹{finalTotal}
+//         </Typography>
+//       </Box>
+
+//       {/* UNDO */}
+//       <Button
+//         variant="outlined"
+//         color="warning"
+//         sx={{ mt: 2 }}
+//         onClick={() => dispatch(undo())}
+//       >
+//         Undo Last Action
+//       </Button>
+//     </Box>
+//   );
+// }
+
+
+
 "use client";
 
 import { useSelector, useDispatch } from "react-redux";
@@ -303,41 +472,55 @@ import {
   removeFromCart,
   undo,
 } from "@/redux/slices/cartSlice";
-import { motion, AnimatePresence } from "framer-motion";
 import CouponInput from "@/components/cart/CouponInput";
+import { motion, AnimatePresence } from "framer-motion";
+
+
+const DISCOUNT_THRESHOLD = 500; 
+const THRESHOLD_DISCOUNT_PERCENT = 10; 
 
 export default function CartSummary() {
   const dispatch = useDispatch();
 
   const items = useSelector((state: RootState) => state.cart.items);
 
-  // ✅ COUPON DISCOUNT FROM REDUX
-  const discount = useSelector(
+  
+  const couponPercent = useSelector(
     (state: RootState) => state.coupon.discount
   );
 
-  // ✅ PRICE CALCULATIONS
+ 
   const subtotal = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
 
-  const couponDiscount = (subtotal * discount) / 100;
-  const finalTotal = subtotal - couponDiscount;
+  
+  const thresholdDiscount =
+    subtotal >= DISCOUNT_THRESHOLD
+      ? (subtotal * THRESHOLD_DISCOUNT_PERCENT) / 100
+      : 0;
+
+  
+  const couponDiscount = (subtotal * couponPercent) / 100;
+
+  
+  const finalTotal =
+    subtotal - thresholdDiscount - couponDiscount;
 
   return (
     <Box>
       <Typography variant="h5" mb={2}>
-        Cart
+        Shopping Cart
       </Typography>
 
-      {/* CART ITEMS */}
+      
       <AnimatePresence>
         {items.map((item) => (
           <motion.div
             key={item.id}
             layout
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, x: -40 }}
             transition={{ duration: 0.25 }}
@@ -362,7 +545,7 @@ export default function CartSummary() {
                 }}
               />
 
-              {/* CONTENT */}
+             
               <CardContent sx={{ flexGrow: 1 }}>
                 <Typography fontWeight={600}>
                   {item.name}
@@ -373,11 +556,11 @@ export default function CartSummary() {
                 </Typography>
 
                 <Typography fontWeight={600}>
-                  Total: ₹{item.price * item.quantity}
+                  Item Total: ₹{item.price * item.quantity}
                 </Typography>
               </CardContent>
 
-              {/* QUANTITY CONTROLS */}
+             
               <Box display="flex" alignItems="center" gap={1}>
                 <IconButton
                   onClick={() =>
@@ -396,7 +579,7 @@ export default function CartSummary() {
                 </IconButton>
               </Box>
 
-              {/* REMOVE */}
+             
               <Box pr={2}>
                 <Button
                   color="error"
@@ -415,18 +598,22 @@ export default function CartSummary() {
 
       <Divider sx={{ my: 2 }} />
 
-      {/* COUPON INPUT */}
+      
       <CouponInput />
 
-      {/* PRICE SUMMARY */}
-      <Box mt={2}>
-        <Typography>
-          Subtotal: ₹{subtotal}
-        </Typography>
+      
+      <Box mt={3}>
+        <Typography>Subtotal: ₹{subtotal}</Typography>
 
-        {discount > 0 && (
+        {thresholdDiscount > 0 && (
           <Typography color="success.main">
-            Coupon Discount ({discount}%): -₹{couponDiscount}
+            Threshold Discount (10%): -₹{thresholdDiscount}
+          </Typography>
+        )}
+
+        {couponPercent > 0 && (
+          <Typography color="success.main">
+            Coupon Discount ({couponPercent}%): -₹{couponDiscount}
           </Typography>
         )}
 
@@ -435,7 +622,7 @@ export default function CartSummary() {
         </Typography>
       </Box>
 
-      {/* UNDO */}
+      
       <Button
         variant="outlined"
         color="warning"
