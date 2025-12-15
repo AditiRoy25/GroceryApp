@@ -475,46 +475,48 @@ import {
 import CouponInput from "@/components/cart/CouponInput";
 import { motion, AnimatePresence } from "framer-motion";
 
-
-const DISCOUNT_THRESHOLD = 500; 
-const THRESHOLD_DISCOUNT_PERCENT = 10; 
+/* ================= BUSINESS RULES ================= */
+const DISCOUNT_THRESHOLD = 500; // ₹500
+const THRESHOLD_DISCOUNT_PERCENT = 10; // 10%
 
 export default function CartSummary() {
   const dispatch = useDispatch();
 
+  /* ================= REDUX STATE ================= */
   const items = useSelector((state: RootState) => state.cart.items);
-
-  
   const couponPercent = useSelector(
     (state: RootState) => state.coupon.discount
   );
 
- 
+  /* ================= CALCULATIONS ================= */
+
+  // 1️⃣ Subtotal
   const subtotal = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
 
-  
+  // 2️⃣ Threshold discount (AUTO)
   const thresholdDiscount =
     subtotal >= DISCOUNT_THRESHOLD
       ? (subtotal * THRESHOLD_DISCOUNT_PERCENT) / 100
       : 0;
 
-  
+  // 3️⃣ Coupon discount
   const couponDiscount = (subtotal * couponPercent) / 100;
 
-  
+  // 4️⃣ Final total (IMPORTANT)
   const finalTotal =
     subtotal - thresholdDiscount - couponDiscount;
 
+  /* ================= UI ================= */
   return (
     <Box>
       <Typography variant="h5" mb={2}>
         Shopping Cart
       </Typography>
 
-      
+      {/* CART ITEMS */}
       <AnimatePresence>
         {items.map((item) => (
           <motion.div
@@ -545,7 +547,7 @@ export default function CartSummary() {
                 }}
               />
 
-             
+              {/* DETAILS */}
               <CardContent sx={{ flexGrow: 1 }}>
                 <Typography fontWeight={600}>
                   {item.name}
@@ -560,7 +562,7 @@ export default function CartSummary() {
                 </Typography>
               </CardContent>
 
-             
+              {/* QUANTITY CONTROLS */}
               <Box display="flex" alignItems="center" gap={1}>
                 <IconButton
                   onClick={() =>
@@ -579,7 +581,7 @@ export default function CartSummary() {
                 </IconButton>
               </Box>
 
-             
+              {/* REMOVE */}
               <Box pr={2}>
                 <Button
                   color="error"
@@ -598,22 +600,24 @@ export default function CartSummary() {
 
       <Divider sx={{ my: 2 }} />
 
-      
+      {/* COUPON INPUT */}
       <CouponInput />
 
-      
+      {/* PRICE SUMMARY */}
       <Box mt={3}>
         <Typography>Subtotal: ₹{subtotal}</Typography>
 
         {thresholdDiscount > 0 && (
           <Typography color="success.main">
-            Threshold Discount (10%): -₹{thresholdDiscount}
+            Threshold Discount ({THRESHOLD_DISCOUNT_PERCENT}%): 
+            -₹{thresholdDiscount}
           </Typography>
         )}
 
         {couponPercent > 0 && (
           <Typography color="success.main">
-            Coupon Discount ({couponPercent}%): -₹{couponDiscount}
+            Coupon Discount ({couponPercent}%): 
+            -₹{couponDiscount}
           </Typography>
         )}
 
@@ -622,7 +626,7 @@ export default function CartSummary() {
         </Typography>
       </Box>
 
-      
+      {/* UNDO */}
       <Button
         variant="outlined"
         color="warning"

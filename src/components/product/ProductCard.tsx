@@ -367,12 +367,12 @@ const MotionCard = motion(Card);
 export default function ProductCard({ product }: { product: Product }) {
   const dispatch = useDispatch();
 
-  // ✅ get wishlist items
+  
   const wishlistItems = useSelector(
     (state: RootState) => state.wishlist.items
   );
 
-  // ✅ check if product is wishlisted
+ 
   const isWishlisted = wishlistItems.some(
     (item) => item.id === product.id
   );
@@ -389,7 +389,7 @@ export default function ProductCard({ product }: { product: Product }) {
         position: "relative",
       }}
     >
-      {/* TOP ICONS */}
+      
       <Box
         sx={{
           position: "absolute",
@@ -400,7 +400,7 @@ export default function ProductCard({ product }: { product: Product }) {
           zIndex: 2,
         }}
       >
-        {/* ❤️ WISHLIST BUTTON (FIXED) */}
+       
         <IconButton
           size="small"
           sx={{ bgcolor: "white" }}
@@ -414,7 +414,7 @@ export default function ProductCard({ product }: { product: Product }) {
         </IconButton>
       </Box>
 
-      {/* IMAGE */}
+      
       <CardMedia
         component="img"
         image={product.image}
@@ -425,7 +425,7 @@ export default function ProductCard({ product }: { product: Product }) {
         }}
       />
 
-      {/* CONTENT */}
+      
       <CardContent
         sx={{
           flexGrow: 1,
@@ -459,7 +459,7 @@ export default function ProductCard({ product }: { product: Product }) {
         </Typography>
       </CardContent>
 
-      {/* BUTTON */}
+      
       <Box sx={{ p: 2 }}>
         <Button
           fullWidth
